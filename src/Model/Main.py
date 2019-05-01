@@ -5,5 +5,5 @@ def main():
     print(tf.__version__)
 
 
-if name == '__main__':
+if __name__ == '__main__':
     main()
