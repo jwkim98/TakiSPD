@@ -1,0 +1,2 @@
+# TakiSPD
+Spam mail detectionModel
