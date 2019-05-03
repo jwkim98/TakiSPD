@@ -11,7 +11,8 @@ def get_trained_model():
     MODEL = 'GoogleNews-vectors-negative300.bin'
 
     path = get_file(MODEL + '.gz', 'https://deeplearning4jblob.blob.core.windows.net/resources/wordvectors/%s.gz' % MODEL)
-    unzipped = os.path.join('generated', MODEL)
+    unzipped = os.path.join(os.path.curdir, 'word2vec', 'TrainedModel',  MODEL)
+    print(unzipped)
     if not os.path.isfile(unzipped):
         with open(unzipped, 'wb') as fout:
             # Creates new process called 'zcat' and reads from path(stdin) and rites to 'wb'(stdout)
