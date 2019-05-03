@@ -70,3 +70,5 @@ dataset
 .idea*
 *.swp
 *.pyc
+
+TrainedModel/*
