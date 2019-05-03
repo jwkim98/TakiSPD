@@ -71,4 +71,8 @@ dataset
 *.swp
 *.pyc
 
-TrainedModel/*
+#gensim word2vec files
+*.kv
+*.model
+*.npy
+*.bin
