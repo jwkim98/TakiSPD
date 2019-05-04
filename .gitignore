@@ -67,3 +67,12 @@ fabric.properties
 
 #data file:
 dataset
+.idea*
+*.swp
+*.pyc
+
+#gensim word2vec files
+*.kv
+*.model
+*.npy
+*.bin
