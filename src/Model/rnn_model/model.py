@@ -17,14 +17,14 @@ class Model:
         self.final_output = 0
         self.final_state = 0
 
-        self.input = 0
-        self.label = 0
+        self.model_input = 0
+        self.model_label = 0
 
     def create_model(self):
-        self.input = tf.placeholder(tf.float32, [self.batch_size, self.time_length, self.input_size])
-        self.label = tf.placeholder(tf.float32, [self.batch_size, self.output_size])
+        self.model_input = tf.placeholder(tf.float32, [self.batch_size, self.time_length, self.input_size])
+        self.model_label = tf.placeholder(tf.float32, [self.batch_size, self.output_size])
 
-        unrolled_input = tf.unstack(self.input, self.time_length, axis=1, name='unstack')
+        unrolled_input = tf.unstack(self.model_input, self.time_length, axis=1, name='unstack')
         cell = rnn.BasicLSTMCell(self.hidden_size, forget_bias=1.0, state_is_tuple=True)
 
         output_list = []
@@ -41,15 +41,15 @@ class Model:
         return self.final_output
 
     def loss(self, print_loss, print_accuracy):
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.label,
-                                                                        logits=self.final_output))
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.model_label,
+                                                                         logits=self.final_output))
 
         if print_loss:
             tf.print("train_loss : " + loss)
 
         if print_accuracy:
             model_answer = tf.argmax(self.final_output, 1)
-            real_answer = tf.argmax(self.label, 1)
+            real_answer = tf.argmax(self.model_label, 1)
             equality = tf.equal(model_answer, real_answer)
             accuracy = tf.reduce_mean(equality)
             tf.print("accuracy : " + accuracy)
@@ -58,7 +58,7 @@ class Model:
 
     def test_accuracy(self):
         model_answer = tf.argmax(self.final_output, 1)
-        real_answer = tf.argmax(self.label, 1)
+        real_answer = tf.argmax(self.model_label, 1)
         equality = tf.equal(model_answer, real_answer)
         accuracy = tf.reduce_mean(equality)
         tf.print("test accuracy : " + accuracy)

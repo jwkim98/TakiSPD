@@ -1,6 +1,7 @@
 import tensorflow as tf
 import model as spd
 import random
+import os
 
 
 def get_model():
@@ -40,10 +41,27 @@ def train(model, spam_list, key_vector, epochs):
 
     loss = model.loss(print_loss=True, print_accuracy=True)
     optimize = model.optimizer(loss)
+
+    saver = tf.train.Saver()
+    path = os.path.join(os.path.curdir, 'saved_model')
+
     with tf.Session() as sess:
         for i in range(0, epochs):
             train_batch = get_batch(train_vector_list, batch_size)
             test_batch = get_batch(test_vector_list, batch_size)
-            sess.run(optimize)
 
+            train_data_input = [data_tuple[0] for data_tuple in train_batch]
+            train_label_input = [data_tuple[1] for data_tuple in train_batch]
 
+            test_data_input = [test_tuple[0] for test_tuple in test_batch]
+            test_label_input = [test_tuple[1] for test_tuple in test_batch]
+
+            sess.run(optimize, feed_dict={model_input: train_data_input, label: train_label_input})
+            sess.run(optimize, feed_dict={model_input: test_data_input, label: test_label_input})
+
+            if i % 30 == 0:
+                name = 'model_' + str(i/10) + '.ckpt'
+                saver.save(sess, os.path.join(path, name))
+
+        save_path = saver.save(sess, os.path.join(path, 'model_final.ckpt'))
+        print("saved model to %s: " % save_path)
