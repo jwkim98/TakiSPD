@@ -76,3 +76,8 @@ dataset
 *.model
 *.npy
 *.bin
+
+#Dataset files
+*.csv#
+*.csv
+*.zip
