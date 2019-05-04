@@ -12,7 +12,7 @@ def get_model():
 
 # receives spam_list of shape [number_of_spams, (word_list, label)] and
 # converts them to list of word vector of shape [number_of_spams, (word_vector_list, label)]
-def to_vector_list(key_vector, spam_list):
+def to_vector_list(key_vector, spam_list, longest):
 
     result_list = []
     for word_list, label in spam_list:
@@ -21,6 +21,10 @@ def to_vector_list(key_vector, spam_list):
         for word in word_list:
             vector = key_vector[word]
             word_vector_list.append(vector)
+
+        # Zero pad the word_vector_list for short vectors
+        while len(word_vector_list) < longest:
+            word_vector_list.append(0.0)
 
         result_list.append((word_vector_list, label))
 
