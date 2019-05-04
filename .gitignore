@@ -81,3 +81,9 @@ dataset
 *.csv#
 *.csv
 *.zip
+
+#model result files
+*.ckpt
+*.meta
+*.index
+*.ckpt.*
