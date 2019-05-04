@@ -20,8 +20,6 @@ class Model:
         self.input = 0
         self.label = 0
 
-        self.loss = 0
-
     def create_model(self):
         self.input = tf.placeholder(tf.float32, [self.batch_size, self.time_length, self.input_size])
         self.label = tf.placeholder(tf.float32, [self.batch_size, self.output_size])
@@ -43,11 +41,11 @@ class Model:
         return self.final_output
 
     def loss(self, print_loss, print_accuracy):
-        self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.label,
-                                                                              logits=self.final_output))
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.label,
+                                                                        logits=self.final_output))
 
         if print_loss:
-            tf.print("train_loss : " + self.loss)
+            tf.print("train_loss : " + loss)
 
         if print_accuracy:
             model_answer = tf.argmax(self.final_output, 1)
@@ -56,11 +54,18 @@ class Model:
             accuracy = tf.reduce_mean(equality)
             tf.print("accuracy : " + accuracy)
 
-        return self.loss
+        return loss
 
-    def optimizer(self):
+    def test_accuracy(self):
+        model_answer = tf.argmax(self.final_output, 1)
+        real_answer = tf.argmax(self.label, 1)
+        equality = tf.equal(model_answer, real_answer)
+        accuracy = tf.reduce_mean(equality)
+        tf.print("test accuracy : " + accuracy)
+
+    def optimizer(self, loss):
         optimize = tf.train.AdamOptimizer()
-        train = optimize.minimize(self.loss)
+        train = optimize.minimize(loss)
         return train
 
 

@@ -23,7 +23,7 @@ def save_trained_model(save_path):
     return key_vector
 
 
-def load_keyVector(filename):
+def load_key_vector(filename):
     loaded_model = gensim.models.KeyedVectors.load(filename)
     return loaded_model
 
