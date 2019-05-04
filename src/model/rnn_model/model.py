@@ -1,5 +1,4 @@
 import tensorflow as tf
-import numpy as np
 from tensorflow.contrib import rnn
 
 
@@ -21,8 +20,10 @@ class Model:
         self.model_label = 0
 
     def create_model(self):
-        self.model_input = tf.placeholder(tf.float32, [self.batch_size, self.time_length, self.input_size])
-        self.model_label = tf.placeholder(tf.float32, [self.batch_size, self.output_size])
+        self.model_input = tf.placeholder(tf.float32, [self.batch_size, self.time_length, self.input_size],
+                                          name='model_input')
+        self.model_label = tf.placeholder(tf.float32, [self.batch_size, self.output_size],
+                                          name='model_label')
 
         unrolled_input = tf.unstack(self.model_input, self.time_length, axis=1, name='unstack')
         cell = rnn.BasicLSTMCell(self.hidden_size, forget_bias=1.0, state_is_tuple=True)
@@ -40,28 +41,26 @@ class Model:
 
         return self.final_output
 
-    def loss(self, print_loss, print_accuracy):
+    def loss(self, print_loss):
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.model_label,
                                                                          logits=self.final_output))
-
         if print_loss:
-            tf.print("train_loss : " + loss)
-
-        if print_accuracy:
-            model_answer = tf.argmax(self.final_output, 1)
-            real_answer = tf.argmax(self.model_label, 1)
-            equality = tf.equal(model_answer, real_answer)
-            accuracy = tf.reduce_mean(equality)
-            tf.print("accuracy : " + accuracy)
-
+            tf.print(loss, [loss])
         return loss
+
+    def train_accuracy(self):
+        model_answer = tf.argmax(self.final_output, 1)
+        real_answer = tf.argmax(self.model_label, 1)
+        # equality = tf.equal(model_answer, real_answer)
+        acc, acc_op = tf.metrics.accuracy(labels=real_answer, predictions=model_answer)
+        return acc, acc_op
 
     def test_accuracy(self):
         model_answer = tf.argmax(self.final_output, 1)
         real_answer = tf.argmax(self.model_label, 1)
-        equality = tf.equal(model_answer, real_answer)
-        accuracy = tf.reduce_mean(equality)
-        tf.print("test accuracy : " + accuracy)
+        # equality = tf.equal(model_answer, real_answer)
+        acc, acc_op = tf.metrics.accuracy(labels=real_answer, predictions=model_answer)
+        return acc, acc_op
 
     def optimizer(self, loss):
         optimize = tf.train.AdamOptimizer()
