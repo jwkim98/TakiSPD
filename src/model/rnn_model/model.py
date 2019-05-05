@@ -18,6 +18,7 @@ class Model:
 
         self.model_input = 0
         self.model_label = 0
+        self.softmax_output = 0
 
     def create_model(self):
         self.model_input = tf.placeholder(tf.float32, [self.batch_size, self.time_length, self.input_size],
@@ -39,6 +40,8 @@ class Model:
         self.final_state = state
         self.final_output = tf.matmul(last_output, self.weight) + self.bias
 
+        self.softmax_output = tf.nn.softmax(self.final_output)
+
         return self.final_output
 
     def loss(self, print_loss):
@@ -52,15 +55,23 @@ class Model:
         model_answer = tf.argmax(self.final_output, 1)
         real_answer = tf.argmax(self.model_label, 1)
         # equality = tf.equal(model_answer, real_answer)
-        acc, acc_op = tf.metrics.accuracy(labels=real_answer, predictions=model_answer)
-        return acc, acc_op
+        acc, acc_op = tf.metrics.accuracy(labels=real_answer, predictions=model_answer, name="train_metric")
+
+        running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="train_metric")
+        running_vars_initializer = tf.variables_initializer(var_list=running_vars)
+
+        return running_vars_initializer, acc, acc_op
 
     def test_accuracy(self):
         model_answer = tf.argmax(self.final_output, 1)
         real_answer = tf.argmax(self.model_label, 1)
         # equality = tf.equal(model_answer, real_answer)
-        acc, acc_op = tf.metrics.accuracy(labels=real_answer, predictions=model_answer)
-        return acc, acc_op
+        acc, acc_op = tf.metrics.accuracy(labels=real_answer, predictions=model_answer, name="test_metric")
+
+        running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="test_metric")
+        running_vars_initializer = tf.variables_initializer(var_list=running_vars)
+
+        return running_vars_initializer, acc, acc_op
 
     def optimizer(self, loss):
         optimize = tf.train.AdamOptimizer()

@@ -8,6 +8,7 @@ from rnn_model import run_model as run
 
 def main():
     print(tf.__version__)
+    save_key_vector()
     train()
 
 
@@ -18,7 +19,7 @@ def load_gensim_model_example():
     print(vector.shape)
 
 
-def save_key_vector_example():
+def save_key_vector():
     path = os.path.join(os.path.curdir, 'word2vec', 'TrainedModel')
     word_vec.save_trained_model(path)
 

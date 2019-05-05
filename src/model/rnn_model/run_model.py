@@ -6,7 +6,7 @@ import os
 
 
 def get_model():
-    model = spd.Model(batch_size=100, time_length=139, input_size=300, output_size=1, hidden_size=100)
+    model = spd.Model(batch_size=100, time_length=139, input_size=300, output_size=2, hidden_size=100)
     model.create_model()
     return model
 
@@ -32,7 +32,13 @@ def to_vector_list(key_vector, spam_list, longest):
         while len(word_vector_list) < longest:
             word_vector_list.append(np.zeros((300,), dtype=float))
 
-        result_list.append((np.array(word_vector_list), np.array([label])))
+        model_label = np.array([1, 0])
+        if label == True:
+            model_label = np.array([1, 0])
+        else:
+            model_label = np.array([0, 1])
+
+        result_list.append((np.array(word_vector_list), model_label))
 
     return result_list
 
@@ -52,8 +58,8 @@ def train(model, spam_list, longest_length, key_vector, epochs):
 
     loss = model.loss(print_loss=True)
     optimize = model.optimizer(loss)
-    train_acc, train_acc_op = model.train_accuracy()
-    test_acc, test_acc_op = model.test_accuracy()
+    train_metric_initializer, train_acc, train_acc_op = model.train_accuracy()
+    test_metric_initializer, test_acc, test_acc_op = model.test_accuracy()
 
     saver = tf.train.Saver()
     path = os.path.join(os.path.curdir, 'saved_model')
@@ -64,6 +70,9 @@ def train(model, spam_list, longest_length, key_vector, epochs):
         sess.run(init_global)
         sess.run(init_local)
         for i in range(0, epochs):
+            sess.run(test_metric_initializer)
+            sess.run(train_metric_initializer)
+
             train_batch = get_batch(train_vector_list, batch_size)
             test_batch = get_batch(test_vector_list, batch_size)
 
@@ -76,15 +85,25 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             test_data_input = np.array([test_tuple[0] for test_tuple in test_batch])
             test_label_input = np.array([test_tuple[1] for test_tuple in test_batch])
 
+            print("running")
             sess.run(optimize, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
 
-            acc_train = sess.run(train_acc,
-                                 feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
-            acc_test = sess.run(test_acc,
-                                feed_dict={model.model_input: test_data_input, model.model_label: test_label_input})
+            sess.run(train_acc_op, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
+            acc_train = sess.run(train_acc)
+
+            sess.run(test_acc_op, feed_dict={model.model_input: test_data_input, model.model_label: test_label_input})
+            acc_test = sess.run(test_acc)
+
+            # softmax_out = sess.run(model.softmax_output,
+            #          feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
+            #
+            # label_out = sess.run(model.model_label, feed_dict={model.model_input: test_data_input, model.model_label: test_label_input})
 
             print("train_acc: " + str(acc_train))
             print("test_acc: " + str(acc_test))
+
+            # print("softmax_output: " + str(softmax_out))
+            # print("label_output: " + str(label_out))
 
             if i % 100 == 0:
                 name = 'model_' + str(i/10) + '.ckpt'
