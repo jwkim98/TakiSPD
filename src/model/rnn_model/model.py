@@ -44,11 +44,11 @@ class Model:
 
         return self.final_output
 
-    def loss(self, print_loss):
+    def loss(self):
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.model_label,
                                                                          logits=self.final_output))
-        if print_loss:
-            tf.print(loss, [loss])
+        # if print_loss:
+        #     tf.print(loss, [loss])
         return loss
 
     def train_accuracy(self):

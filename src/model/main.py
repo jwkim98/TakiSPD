@@ -21,6 +21,13 @@ def load_gensim_model_example():
 
 def save_key_vector():
     path = os.path.join(os.path.curdir, 'word2vec', 'TrainedModel')
+    try:
+        os.mkdir(path)
+        print("Created directory : " + str(path))
+
+    except:
+        print("Directory already exists : " + str(path))
+
     word_vec.save_trained_model(path)
 
 

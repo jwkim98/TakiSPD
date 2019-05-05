@@ -56,7 +56,7 @@ def train(model, spam_list, longest_length, key_vector, epochs):
     test_vector_list = vector_list[4700:]
     batch_size = 100
 
-    loss = model.loss(print_loss=True)
+    loss = model.loss()
     optimize = model.optimizer(loss)
     train_metric_initializer, train_acc, train_acc_op = model.train_accuracy()
     test_metric_initializer, test_acc, test_acc_op = model.test_accuracy()
