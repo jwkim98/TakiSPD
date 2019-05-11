@@ -40,13 +40,14 @@ class Model:
         self.final_state = state
         self.final_output = tf.matmul(last_output, self.weight) + self.bias
 
-        self.softmax_output = tf.nn.softmax(self.final_output)
+        self.softmax_output = tf.nn.softmax(self.final_output, name="final_output")
 
         return self.final_output
 
     def loss(self):
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.model_label,
-                                                                         logits=self.final_output))
+                                                                         logits=self.final_output)
+                              , name="Loss")
         # if print_loss:
         #     tf.print(loss, [loss])
         return loss
@@ -77,11 +78,3 @@ class Model:
         optimize = tf.train.AdamOptimizer()
         train = optimize.minimize(loss)
         return train
-
-
-
-
-
-
-
-

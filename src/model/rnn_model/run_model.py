@@ -3,6 +3,7 @@ from rnn_model import model as spd
 import numpy as np
 import random
 import os
+import matplotlib.pyplot as  plt
 
 
 def get_model():
@@ -105,9 +106,29 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             # print("softmax_output: " + str(softmax_out))
             # print("label_output: " + str(label_out))
 
-            if i % 1000 == 0:
-                name = 'model_' + str(i/1000) + '.ckpt'
+            if i%10 == 0:
+                plt.scatter(x=i, y=acc_train, c="g", alpha=0.5, marker='o',
+                            label="train")
+                plt.scatter(x=i, y=acc_test, c="g", alpha=0.5, marker='x',
+                            label="test")
+            if i % 100 == 0:
+                name = 'model_' + str(i/10) + '.ckpt'
                 saver.save(sess, os.path.join(path, name))
 
         save_path = saver.save(sess, os.path.join(path, 'model_final.ckpt'))
         print("saved model to %s: " % save_path)
+
+        plt.xlabel("Epochs")
+        plt.ylabel("Accuracy")
+        plt.legend(loc='upper left')
+        plt.show()
+        plt.savefig('Analysis.png')
+
+        inputs = {
+            'model_input' : model.model_input,
+            'model_label' : model.model_label
+        }
+
+        outputs = {'final_output' : model.softmax_output}
+        tf.saved_model.simple_save(
+            sess, path + '/', inputs, outputs)
