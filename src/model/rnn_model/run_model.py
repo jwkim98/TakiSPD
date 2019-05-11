@@ -70,6 +70,10 @@ def train(model, spam_list, longest_length, key_vector, epochs):
         init_local = tf.local_variables_initializer()
         sess.run(init_global)
         sess.run(init_local)
+
+        test_acc_list = list()
+        train_acc_list = list()
+        epoch_label_list = list()
         for i in range(0, epochs):
             sess.run(test_metric_initializer)
             sess.run(train_metric_initializer)
@@ -105,8 +109,9 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             # print("label_output: " + str(label_out))
 
             if i % 10 == 0:
-                plt.plot(x=i, y=acc_train, c="g", alpha=0.2, marker='o')
-                plt.plot(x=i, y=acc_test, c="r", alpha=0.2, marker='x')
+                train_acc_list.append(acc_train*100)
+                test_acc_list.append(acc_test*100)
+                epoch_label_list.append(i)
                 print("train_acc: " + str(acc_train))
                 print("test_acc: " + str(acc_test))
                 print("Epochs: " + str(i))
@@ -117,17 +122,24 @@ def train(model, spam_list, longest_length, key_vector, epochs):
         save_path = saver.save(sess, os.path.join(path, 'model_final.ckpt'))
         print("saved model to %s: " % save_path)
 
+        plt.plot(np.array(epoch_label_list), np.array(train_acc_list), 'ro', label='train')
+        plt.plot(np.array(epoch_label_list), np.array(test_acc_list), 'bo', label='test')
+        # print(epoch_label_list)
+        # print(train_acc_list)
+        # print(test_acc_list)
+
+        plt.axis([0, epochs, 50, 100])
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy")
         plt.legend(loc='upper left')
         plt.show()
         plt.savefig('Analysis.png')
 
-        inputs = {
-            'model_input': model.model_input,
-            'model_label': model.model_label
-        }
-
-        outputs = {'final_output' : model.softmax_output}
-        tf.saved_model.simple_save(
-            sess, path + '/', inputs, outputs)
+        # inputs = {
+        #     'model_input': model.model_input,
+        #     'model_label': model.model_label
+        # }
+        #
+        # outputs = {'final_output' : model.softmax_output}
+        # tf.saved_model.simple_save(
+        #     sess, path + '/', inputs, outputs)
