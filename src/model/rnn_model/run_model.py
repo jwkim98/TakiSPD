@@ -105,8 +105,8 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             # print("softmax_output: " + str(softmax_out))
             # print("label_output: " + str(label_out))
 
-            if i % 100 == 0:
-                name = 'model_' + str(i/10) + '.ckpt'
+            if i % 1000 == 0:
+                name = 'model_' + str(i/1000) + '.ckpt'
                 saver.save(sess, os.path.join(path, name))
 
         save_path = saver.save(sess, os.path.join(path, 'model_final.ckpt'))
