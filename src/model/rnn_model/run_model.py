@@ -86,7 +86,7 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             test_data_input = np.array([test_tuple[0] for test_tuple in test_batch])
             test_label_input = np.array([test_tuple[1] for test_tuple in test_batch])
 
-            print("running")
+            # print("running")
             sess.run(optimize, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
 
             sess.run(train_acc_op, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
