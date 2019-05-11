@@ -86,7 +86,7 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             test_data_input = np.array([test_tuple[0] for test_tuple in test_batch])
             test_label_input = np.array([test_tuple[1] for test_tuple in test_batch])
 
-            print("running")
+            # print("running")
             sess.run(optimize, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
 
             sess.run(train_acc_op, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
@@ -100,17 +100,16 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             #
             # label_out = sess.run(model.model_label, feed_dict={model.model_input: test_data_input, model.model_label: test_label_input})
 
-            print("train_acc: " + str(acc_train))
-            print("test_acc: " + str(acc_test))
 
             # print("softmax_output: " + str(softmax_out))
             # print("label_output: " + str(label_out))
 
-            if i%10 == 0:
-                plt.scatter(x=i, y=acc_train, c="g", alpha=0.5, marker='o',
-                            label="train")
-                plt.scatter(x=i, y=acc_test, c="g", alpha=0.5, marker='x',
-                            label="test")
+            if i % 10 == 0:
+                plt.plot(x=i, y=acc_train, c="g", alpha=0.2, marker='o')
+                plt.plot(x=i, y=acc_test, c="r", alpha=0.2, marker='x')
+                print("train_acc: " + str(acc_train))
+                print("test_acc: " + str(acc_test))
+                print("Epochs: " + str(i))
             if i % 100 == 0:
                 name = 'model_' + str(i/10) + '.ckpt'
                 saver.save(sess, os.path.join(path, name))
@@ -125,8 +124,8 @@ def train(model, spam_list, longest_length, key_vector, epochs):
         plt.savefig('Analysis.png')
 
         inputs = {
-            'model_input' : model.model_input,
-            'model_label' : model.model_label
+            'model_input': model.model_input,
+            'model_label': model.model_label
         }
 
         outputs = {'final_output' : model.softmax_output}
