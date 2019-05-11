@@ -8,6 +8,7 @@ from rnn_model import run_model as run
 
 def main():
     print(tf.__version__)
+    # load_gensim_model_example()
     save_key_vector()
     train()
 
@@ -15,9 +16,12 @@ def main():
 def load_gensim_model_example():
     filename = os.path.join(os.path.curdir, 'word2vec', 'TrainedModel', 'word2vec.kv')
     loaded_model = word_vec.load_key_vector(filename)
-    vector = loaded_model['sale']
-    print(vector.shape)
-
+    try:
+        vector = loaded_model['fuck']
+        print(vector)
+        print(vector.shape)
+    except:
+        print("No word vector has been found")
 
 def save_key_vector():
     path = os.path.join(os.path.curdir, 'word2vec', 'TrainedModel')
