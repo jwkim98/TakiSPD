@@ -122,8 +122,10 @@ def train(model, spam_list, longest_length, key_vector, epochs):
         save_path = saver.save(sess, os.path.join(path, 'model_final.ckpt'))
         print("saved model to %s: " % save_path)
 
-        plt.plot(np.array(epoch_label_list), np.array(train_acc_list), 'ro', label='train')
-        plt.plot(np.array(epoch_label_list), np.array(test_acc_list), 'bo', label='test')
+        plt.plot(np.array(epoch_label_list), np.array(train_acc_list), 'ro', label='train'
+                , markersize = 0.3)
+        plt.plot(np.array(epoch_label_list), np.array(test_acc_list), 'bo', label='test'
+                , markersize = 0.3)
         # print(epoch_label_list)
         # print(train_acc_list)
         # print(test_acc_list)
