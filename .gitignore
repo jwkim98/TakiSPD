@@ -76,3 +76,14 @@ dataset
 *.model
 *.npy
 *.bin
+
+#Dataset files
+*.csv#
+*.csv
+*.zip
+
+#model result files
+*.ckpt
+*.meta
+*.index
+*.ckpt.*
