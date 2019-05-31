@@ -6,20 +6,21 @@ import os
 import matplotlib.pyplot as  plt
 
 
-def get_model():
-    model = spd.Model(batch_size=100, time_length=139, input_size=300, output_size=2, hidden_size=100)
+def get_model(time_length):
+    model = spd.Model(batch_size=100, time_length=time_length, input_size=300, output_size=2, hidden_size=100)
     model.create_model()
     return model
 
 
 # receives spam_list of shape [number_of_spams, (word_list, label)] and
 # converts them to list of word vector of shape [number_of_spams, (word_vector_list, label)]
-def to_vector_list(key_vector, spam_list, longest):
+def to_vector_list(key_vector, spam_list, longest_spam_size):
 
     result_list = []
     for word_list, label in spam_list:
         word_vector_list = []
-
+        if len(word_list) > longest_spam_size:
+            word_list = word_list[:longest_spam_size]
         for word in word_list:
 
             try:
@@ -30,11 +31,11 @@ def to_vector_list(key_vector, spam_list, longest):
             word_vector_list.append(np.array(vector))
 
         # Zero pad the word_vector_list for short vectors
-        while len(word_vector_list) < longest:
+        while len(word_vector_list) < longest_spam_size:
             word_vector_list.append(np.zeros((300,), dtype=float))
 
         model_label = np.array([1, 0])
-        if label == True:
+        if label==True:
             model_label = np.array([1, 0])
         else:
             model_label = np.array([0, 1])

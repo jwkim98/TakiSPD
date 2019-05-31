@@ -48,8 +48,8 @@ def train():
     file, longest = csv_reader.read_csv(csv_path)
     key_vector = word_vec.load_key_vector(key_vector_path)
     epochs = 100000
-    model = run.get_model()
-    run.train(model, file, longest, key_vector, epochs)
+    model = run.get_model(int(longest/2))
+    run.train(model, file, int(longest/2), key_vector, epochs)
 
 
 if __name__ == '__main__':
