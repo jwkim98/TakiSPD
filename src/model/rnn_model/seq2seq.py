@@ -1,9 +1,8 @@
 import tensorflow as tf
-import numpy as np
 from tensorflow.contrib import rnn
 
 
-class Seq2seq_model:
+class model_with_seq2seq:
 
     def __init__(self, batch_size, input_time_length, model_time_length, input_size, output_size, hidden_size):
         self.batch_size = batch_size
@@ -24,14 +23,15 @@ class Seq2seq_model:
         self.softmax_output = 0
 
     def create_model(self):
-        self.model_input = tf.placeholder(tf.float32, [self.batch_size, self.input_time_length,
+        self.model_input = tf.placeholder(tf.float32, [self.batch_size, self.input_time_length + self.model_time_length,
                                                        self.input_size],
                                           name='model_input')
         self.model_label = tf.placeholder(tf.float32, [self.batch_size, self.output_size],
                                           name='model_label')
 
-        seq2seq_unrolled_input = tf.unstack(self.model_input, self.input_time_length, axis=1, name='seq2seq_unstack')
-        seq2seq_cell = rnn.BasicLSTMCell(self.input_time_length + self.model_time_length, forget_bias=1.0, state_is_tuple=True)
+        seq2seq_unrolled_input = tf.unstack(self.model_input, self.input_time_length + self.model_time_length, axis=1,
+                                            name='seq2seq_unstack')
+        seq2seq_cell = rnn.BasicLSTMCell(self.model_time_length, forget_bias=1.0, state_is_tuple=True)
 
         # integration of seq2seq model that will convert long list of word vectors to shorter ones
         seq2seq_output_list = []
@@ -42,12 +42,14 @@ class Seq2seq_model:
 
         # Bring the output of the last cells corresponding to model
         seq2seq_last_output = seq2seq_output_list[-self.model_time_length:]
+        seq2seq_reshape = tf.reshape(seq2seq_last_output,
+                                     (self.batch_size, self.model_time_length, self.model_time_length))
 
-        model_unrolled_input = tf.unstack(seq2seq_last_output, self.model_time_length, axis=1, name='rnn_unstack')
+        model_unrolled_input = tf.unstack(seq2seq_reshape, self.model_time_length, axis=1, name='rnn_unstack')
         model_cell = rnn.BasicLSTMCell(self.hidden_size, forget_bias=1.0, state_is_tuple=True)
 
         model_output_list = []
-        model_state = model_cell.zero_state(self.batch_size)
+        model_state = model_cell.zero_state(self.batch_size, tf.float32)
         for input_elem in model_unrolled_input:
             output, model_state = model_cell(input_elem, model_state)
             model_output_list.append(output)
@@ -94,6 +96,3 @@ class Seq2seq_model:
         optimize = tf.train.AdamOptimizer()
         train = optimize.minimize(loss)
         return train
-
-
-

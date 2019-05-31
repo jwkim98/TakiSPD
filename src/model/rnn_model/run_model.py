@@ -1,5 +1,5 @@
 import tensorflow as tf
-from rnn_model import model as spd
+from rnn_model import seq2seq as spd
 import numpy as np
 import random
 import os
@@ -7,7 +7,8 @@ import matplotlib.pyplot as  plt
 
 
 def get_model():
-    model = spd.Model(batch_size=100, time_length=139, input_size=300, output_size=2, hidden_size=100)
+    model = spd.model_with_seq2seq(batch_size=100, input_time_length=139, model_time_length=70, input_size=300, output_size=2,
+                      hidden_size=100)
     model.create_model()
     return model
 
@@ -15,7 +16,6 @@ def get_model():
 # receives spam_list of shape [number_of_spams, (word_list, label)] and
 # converts them to list of word vector of shape [number_of_spams, (word_vector_list, label)]
 def to_vector_list(key_vector, spam_list, longest):
-
     result_list = []
     for word_list, label in spam_list:
         word_vector_list = []
@@ -33,7 +33,6 @@ def to_vector_list(key_vector, spam_list, longest):
         while len(word_vector_list) < longest:
             word_vector_list.append(np.zeros((300,), dtype=float))
 
-        model_label = np.array([1, 0])
         if label == True:
             model_label = np.array([1, 0])
         else:
@@ -52,7 +51,7 @@ def get_batch(vector_list, batch_size):
 
 # Trains the model with
 def train(model, spam_list, longest_length, key_vector, epochs):
-    vector_list = to_vector_list(key_vector, spam_list, longest_length)
+    vector_list = to_vector_list(key_vector, spam_list, longest_length + 70)
     train_vector_list = vector_list[:4700]
     test_vector_list = vector_list[4700:]
     batch_size = 100
@@ -84,48 +83,36 @@ def train(model, spam_list, longest_length, key_vector, epochs):
             train_data_input = np.array([data_tuple[0] for data_tuple in train_batch])
             train_label_input = np.array([data_tuple[1] for data_tuple in train_batch])
 
-            # print(np.shape(train_data_input))
-            # print(np.shape(train_label_input))
-
             test_data_input = np.array([test_tuple[0] for test_tuple in test_batch])
             test_label_input = np.array([test_tuple[1] for test_tuple in test_batch])
 
-            # print("running")
             sess.run(optimize, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
 
-            sess.run(train_acc_op, feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
+            sess.run(train_acc_op,
+                     feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
             acc_train = sess.run(train_acc)
 
             sess.run(test_acc_op, feed_dict={model.model_input: test_data_input, model.model_label: test_label_input})
             acc_test = sess.run(test_acc)
 
-            # softmax_out = sess.run(model.softmax_output,
-            #          feed_dict={model.model_input: train_data_input, model.model_label: train_label_input})
-            #
-            # label_out = sess.run(model.model_label, feed_dict={model.model_input: test_data_input, model.model_label: test_label_input})
-
-
-            # print("softmax_output: " + str(softmax_out))
-            # print("label_output: " + str(label_out))
-
             if i % 10 == 0:
-                train_acc_list.append(acc_train*100)
-                test_acc_list.append(acc_test*100)
+                train_acc_list.append(acc_train * 100)
+                test_acc_list.append(acc_test * 100)
                 epoch_label_list.append(i)
                 print("train_acc: " + str(acc_train))
                 print("test_acc: " + str(acc_test))
                 print("Epochs: " + str(i))
             if i % 100 == 0:
-                name = 'model_' + str(i/10) + '.ckpt'
+                name = 'model_' + str(i / 10) + '.ckpt'
                 saver.save(sess, os.path.join(path, name))
 
         save_path = saver.save(sess, os.path.join(path, 'model_final.ckpt'))
         print("saved model to %s: " % save_path)
 
         plt.plot(np.array(epoch_label_list), np.array(train_acc_list), 'ro', label='train'
-                , markersize = 0.3)
+                 , markersize=0.3)
         plt.plot(np.array(epoch_label_list), np.array(test_acc_list), 'bo', label='test'
-                , markersize = 0.3)
+                 , markersize=0.3)
         # print(epoch_label_list)
         # print(train_acc_list)
         # print(test_acc_list)
