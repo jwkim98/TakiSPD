@@ -35,9 +35,15 @@ class model_with_seq2seq:
 
         # integration of seq2seq model that will convert long list of word vectors to shorter ones
         seq2seq_output_list = []
+        previous_output = 0
+        count = 0
         seq2seq_state = seq2seq_cell.zero_state(self.batch_size, tf.float32)
         for input_elem in seq2seq_unrolled_input:
-            output, seq2seq_state = seq2seq_cell(input_elem, seq2seq_state)
+            if count > self.input_time_length:
+                output, seq2seq_state = seq2seq_cell(previous_output, seq2seq_state)
+            else:
+                output, seq2seq_state = seq2seq_cell(input_elem, seq2seq_state)
+            previous_output = output
             seq2seq_output_list.append(output)
 
         # Bring the output of the last cells corresponding to model
