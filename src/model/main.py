@@ -47,7 +47,7 @@ def train():
     key_vector_path = os.path.join(os.path.curdir, 'word2vec', 'TrainedModel', 'word2vec.kv')
     file, longest = csv_reader.read_csv(csv_path)
     key_vector = word_vec.load_key_vector(key_vector_path)
-    epochs = 100000
+    epochs = 200000
     model = run.get_model()
     run.train(model, file, longest, key_vector, epochs)
 
