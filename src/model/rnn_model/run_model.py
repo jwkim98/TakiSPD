@@ -20,7 +20,8 @@ def to_vector_list(key_vector, spam_list, longest_spam_size):
     for word_list, label in spam_list:
         word_vector_list = []
         if len(word_list) > longest_spam_size:
-            word_list = word_list[:longest_spam_size]
+            random_index = random.randint(0, len(word_list) - longest_spam_size)
+            word_list = word_list[random_index: random_index + longest_spam_size]
         for word in word_list:
 
             try:
